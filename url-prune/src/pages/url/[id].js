@@ -1,7 +1,10 @@
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function Home() {
+  const router = useRouter();
+  const { id } = router.query;
   return (
     <div>
       <Head>
@@ -20,37 +23,19 @@ export default function Home() {
               <div className="pt-10 pb-12 px-6 sm:pt-16 sm:px-16 lg:py-16 lg:pr-0 xl:py-20 xl:px-20">
                 <div className="lg:self-center">
                   <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-                    <span className="block">Your URLs are too long?</span>
+                    <span className="block">Selected URL [{id}]</span>
                     <span className="block text-red-900">Prune them now!</span>
                   </h2>
-                  {/* <p className="mt-4 text-lg leading-6 text-orange-50">
+                  <p className="mt-4 text-lg leading-6 text-orange-50">
                     Life is too short to deal with URLs longer than terms of
                     services. Prune them before sharing them with friends.
-                  </p> */}
-                  {/*                   <a
+                  </p>
+                  <a
                     href="#"
                     className="mt-8 bg-orange-100 border border-transparent rounded-md shadow py-3 px-6 inline-flex items-center text-base font-medium text-red-600 hover:text-red-500"
                   >
                     Enter ridiculously long URL
-                  </a> */}
-                  {/* className="mt-8 bg-orange-100 border border-transparent rounded-md shadow py-3 px-6 inline-flex items-center text-base font-medium text-red-600 hover:text-red-500" */}
-                  <div
-                    className="font-bold text-xl text-white mt-2"
-                    style={{
-                      background: "rgba(255,255,255, 0.1)",
-                      padding: "1.5em",
-                      borderRadius: "0.375rem",
-                      position: "relative",
-                      zIndex: "1",
-                      backgroundFilter: "blur(40px)",
-                      border: "solid 2px transparent",
-                      backgroundClip: "padding-box",
-                      boxShadow: "10px 10px 10px rgba(46,54,68,0.03)",
-                    }}
-                    href="#"
-                  >
-                    Enter ridiculously long URL
-                  </div>
+                  </a>
                 </div>
               </div>
               <div className="-mt-6 aspect-w-5 aspect-h-3 md:aspect-w-2 md:aspect-h-1 opacity-25">

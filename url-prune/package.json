@@ -9,10 +9,13 @@
   },
   "dependencies": {
     "autoprefixer": "^10.0.4",
+    "classnames": "^2.2.6",
     "next": "10.0.1",
     "postcss": "^8.1.14",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "react-hook-form": "^6.12.2",
+    "react-query": "^2.26.4",
     "tailwindcss": "^2.0.1"
   }
 }
