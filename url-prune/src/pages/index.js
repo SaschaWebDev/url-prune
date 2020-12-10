@@ -20,6 +20,7 @@ export default function Home() {
           if (validateURl(clipboardText)) {
             setUrlInputText(clipboardText);
             setClipBoardInserted(true);
+            setPrunedUrlInputText("test");
           }
         }
       })
@@ -205,6 +206,28 @@ export default function Home() {
                       </Typical>
                     )}
                   </div>
+
+                  {prunedUrlInputText ? (
+                    <div
+                      className={`mt-2`}
+                      style={{
+                        background: "rgba(255,255,255, 0.1)",
+                        padding: "1.5em",
+                        borderRadius: "0.375rem",
+                        position: "relative",
+                        zIndex: "1",
+                        backgroundFilter: "blur(40px)",
+                        border: "solid 2px transparent",
+                        backgroundClip: "padding-box",
+                        boxShadow: "10px 10px 10px rgba(46,54,68,0.03)",
+                      }}
+                      onClick={() => handleSwitchToUrlInput()}
+                    >
+                      <h1>{prunedUrlInputText}</h1>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </div>
               <div className="-mt-6 aspect-w-5 aspect-h-3 md:aspect-w-2 md:aspect-h-1 opacity-25 select-none">
