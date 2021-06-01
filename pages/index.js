@@ -29,6 +29,7 @@ export default function Home() {
           "This app needs access to the clipboard for some features."
         );
       });
+    // On click auf url open new tab aber wenn url direkt aufgerufen wird dann einfach redirect im  selben tab
     /* try {
       const clipBoardUrl = e.clipboardData.getData("Text");
       console.log("CLIP: ", clipBoardUrl);
