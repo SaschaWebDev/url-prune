@@ -18,6 +18,35 @@ export default function Home() {
   const [tempText, setTempText] = useState("");
   const [tempTextIndex, setTempTextIndex] = useState("");
 
+  function fetchAddUrl(url) {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}` + "/v1/urls/add", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: url,
+        recentUserId: localStorage.getItem("recentUserId"),
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((json) => {
+            console.log("ADDED URL: ", json);
+            let mappedUrl = window.location.href + json.url.mapped_url;
+            setPrunedUrlInputText(mappedUrl);
+            navigator.clipboard.writeText(mappedUrl);
+          });
+        } else {
+          console.log("REQUEST ADD URL FAILED");
+        }
+      })
+      .catch((error) => {
+        console.log("FAILED ADD URL");
+      });
+  }
+
   function handleSwitchToUrlInput() {
     setshowURLInput(true);
     navigator.clipboard
@@ -28,6 +57,7 @@ export default function Home() {
             setUrlInputText(clipboardText);
             setClipBoardInserted(true);
             setPrunedUrlInputText("test");
+            fetchAddUrl(clipboardText);
           }
         }
       })
@@ -231,12 +261,16 @@ export default function Home() {
                   >
                     {showURLInput ? (
                       <input
-                        id="url-iput"
+                        id="url-input"
                         type="text"
                         name="url"
                         placeholder=""
                         autoFocus
-                        className="text-xl text-white font-bold border-none outline-none truncate w-full bg-transparent"
+                        className={`${
+                          prunedUrlInputText
+                            ? "text-yellow-100 opacity-50"
+                            : "text-white opacity-100"
+                        } text-xl font-bold border-none outline-none truncate w-full bg-transparent`}
                         onChange={onChange}
                         value={urlInputText}
                         spellCheck="false"
@@ -255,7 +289,7 @@ export default function Home() {
 
                   {prunedUrlInputText ? (
                     <div
-                      className={`mt-2`}
+                      className="mt-2 cursor-pointer animate-pulse"
                       style={{
                         background: "rgba(255,255,255, 0.1)",
                         padding: "1.5em",
@@ -267,9 +301,23 @@ export default function Home() {
                         backgroundClip: "padding-box",
                         boxShadow: "10px 10px 10px rgba(46,54,68,0.03)",
                       }}
-                      onClick={() => handleSwitchToUrlInput()}
+                      onMouseOver={() => {
+                        setTempText("Click to Copy");
+                        setTempTextIndex("c_" + 1);
+                      }}
+                      onMouseLeave={() => {
+                        setTempText("");
+                        setTempTextIndex("");
+                      }}
+                      onClick={() =>
+                        navigator.clipboard.writeText(prunedUrlInputText)
+                      }
                     >
-                      <h1>{prunedUrlInputText}</h1>
+                      <h1 className="text-xl text-white font-bold border-none outline-none truncate w-full bg-transparent">
+                        {tempText && tempTextIndex === "c_" + 1
+                          ? tempText
+                          : prunedUrlInputText}
+                      </h1>
                     </div>
                   ) : (
                     ""
