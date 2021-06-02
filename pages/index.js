@@ -1,15 +1,22 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+
 import Typical from "react-typical";
 import isUrl from "is-url";
+import { nanoid } from "nanoid";
 
 export default function Home() {
+  const router = useRouter();
   const [showURLInput, setshowURLInput] = useState(false);
   const [clipBoardInserted, setClipBoardInserted] = useState(false);
   const [urlInputText, setUrlInputText] = useState("");
   const [prunedUrlInputText, setPrunedUrlInputText] = useState("");
   const [alertSuccessURLPruned, setAlertSuccessURLPruned] = useState(false);
+  const [recentPrunes, setRecentPrunes] = useState("");
+  const [tempText, setTempText] = useState("");
+  const [tempTextIndex, setTempTextIndex] = useState("");
 
   function handleSwitchToUrlInput() {
     setshowURLInput(true);
@@ -62,6 +69,44 @@ export default function Home() {
   function onChange(event) {
     setUrlInputText(event.target.value);
   }
+
+  function fetchRecentPrunes(recentUserId) {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}` + "/v1/urls/history", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        recentUserId: recentUserId,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((json) => {
+            console.log("GOT PRUNES: ", json);
+            setRecentPrunes(json.foundPrunes);
+          });
+        } else {
+          console.log("REQUEST FAILED");
+        }
+      })
+      .catch((error) => {
+        console.log("FAILED");
+      });
+  }
+
+  function checkOrSetRecentUser() {
+    if (localStorage.getItem("recentUserId") === null) {
+      localStorage.setItem("recentUserId", nanoid(256));
+    } else {
+      fetchRecentPrunes(localStorage.getItem("recentUserId"));
+    }
+  }
+
+  useEffect(() => {
+    checkOrSetRecentUser();
+  }, []);
 
   return (
     <div>
@@ -240,13 +285,116 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {recentPrunes &&
+          recentPrunes.length > 0 &&
+          typeof window !== "undefined" ? (
+            <div className="mx-auto flex flex-col justify-center mt-4">
+              <h2 className="text-center text-xl font-extrabold text-white mb-2">
+                <span className="block text-orange-500 select-none">
+                  Your Most Recent Prunes:
+                </span>
+              </h2>
+              {recentPrunes.map((prune, index) => (
+                <div key={index} className="text-center mb-4 mx-auto">
+                  <div className="grid grid-cols-4 gap-0 grid-flow-row auto-rows-max">
+                    <div className="grid grid-cols-2">
+                      <img
+                        className="select-non w-8 h-8 mt-1"
+                        src="./view-symbol.svg"
+                        alt="view icon"
+                        style={{ paddingTop: "0.6em" }}
+                      />
+                      <div className="mr-4" style={{ paddingTop: "0.6em" }}>
+                        {prune.view_count}
+                      </div>
+                    </div>
 
-          <div className="mx-auto flex flex-col justify-center">
-            <h1>Most Recent Prunes:</h1>
-            <Link href="/all-urls">
-              <a>See all Prunes</a>
-            </Link>
-          </div>
+                    <div
+                      className="mr-4 cursor-pointer"
+                      style={{
+                        background: "rgba(251, 146, 60, 0.1)",
+                        padding: "0.5em",
+                        borderRadius: "0.375rem",
+                        position: "relative",
+                        zIndex: "1",
+                        backgroundFilter: "blur(40px)",
+                        border: "solid 2px transparent",
+                        backgroundClip: "padding-box",
+                        boxShadow: "10px 10px 10px rgba(46,54,68,0.03)",
+                      }}
+                      onMouseOver={() => {
+                        setTempText("Click to Copy");
+                        setTempTextIndex(index);
+                      }}
+                      onMouseLeave={() => {
+                        setTempText("");
+                        setTempTextIndex("");
+                      }}
+                      onClick={() =>
+                        navigator.clipboard.writeText(recentPrunes[index].url)
+                      }
+                    >
+                      {tempText && tempTextIndex === index
+                        ? tempText
+                        : prune.url.length > 64
+                        ? prune.url.substring(0, 64 - 3) + "..."
+                        : prune.url}
+                    </div>
+                    <div
+                      className="w-4 h-4 mr-4"
+                      style={{ paddingTop: "1em", maxWidth: "2rem" }}
+                    >
+                      <img
+                        className="select-non"
+                        src="./right-arrow.svg"
+                        alt="view icon"
+                      />
+                    </div>
+                    <div
+                      className="mr-2 cursor-pointer"
+                      style={{
+                        background: "rgba(251, 146, 60, 0.1)",
+                        padding: "0.5em",
+                        borderRadius: "0.375rem",
+                        position: "relative",
+                        zIndex: "1",
+                        backgroundFilter: "blur(40px)",
+                        border: "solid 2px transparent",
+                        backgroundClip: "padding-box",
+                        boxShadow: "10px 10px 10px rgba(46,54,68,0.03)",
+                      }}
+                      onMouseOver={() => {
+                        setTempText("Click to Copy");
+                        setTempTextIndex("m_" + index);
+                      }}
+                      onMouseLeave={() => {
+                        setTempText("");
+                        setTempTextIndex("");
+                      }}
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          window.location.href +
+                            router.pathname.substring(
+                              1,
+                              router.pathname.length
+                            ) +
+                            prune.mapped_url
+                        )
+                      }
+                    >
+                      {tempText && tempTextIndex === "m_" + index
+                        ? tempText
+                        : window.location.href +
+                          router.pathname.substring(1, router.pathname.length) +
+                          prune.mapped_url}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            ""
+          )}
         </div>
       </main>
     </div>
