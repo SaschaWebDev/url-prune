@@ -1,4 +1,4 @@
-# url-prune
+# PruneX - Online URL Shortener
 A modern url shortener made with next.js.
 
 
